@@ -1,6 +1,6 @@
-# Chineye AI - Full-Stack Chatbot Application
+# Chineye AI — Privacy‑minded AI Chat Companion
 
-A modern full-stack chatbot web application with JWT authentication, real-time messaging, and chat history.
+Chineye AI is a friendly, privacy‑minded AI chat app. It lets anyone sign up, log in securely, chat with an assistant, and revisit conversations later — all in a clean, responsive interface. The goal is simple: make helpful AI chat accessible and delightful, without compromising on clarity or user control.
 
 ## ⚡ Quick Start (5 minutes)
 
@@ -35,11 +35,12 @@ Visit: **http://localhost:3000**
 
 ## 🚀 Tech Stack
 
-- **Frontend:** HTML5, CSS3, Vanilla JavaScript
-- **Backend:** Python FastAPI
-- **Database:** Supabase (Serverless PostgreSQL)
-- **Authentication:** JWT (JSON Web Tokens)
-- **Deployment:** Vercel/Netlify (Frontend), Render/Railway (Backend)
+-- **Frontend:** HTML5, CSS3, Vanilla JavaScript (no framework)
+- **Backend:** Python FastAPI (JWT auth, REST endpoints)
+- **Database:** Supabase (PostgreSQL + auth helpers)
+- **Auth:** JWT (stateless, stored in `localStorage` client‑side)
+- **UI Icons:** Font Awesome
+- **Deployment:** Vercel (monorepo: frontend + serverless Python API)
 
 ## 📁 Project Structure
 
@@ -62,10 +63,42 @@ chineye-ai/
 │   ├── requirements.txt    # Python dependencies
 │   └── .env.example        # Environment variables template
 │
-└── README.md               # This file
+├── api/
+│   ├── index.py            # Serverless entrypoint (exports FastAPI app)
+│   └── requirements.txt    # Reuses backend requirements
+└── vercel.json             # Vercel routes & builds (monorepo)
 ```
 
-## ⚙️ Setup Instructions
+## 🧠 What It’s About (Explain Like I’m New)
+
+- You can create an account, log in, and chat with an AI assistant.
+- The app saves your conversations, so you can revisit them later.
+- Everything runs with a simple, modern UI that works on phones and desktops.
+- The backend is a FastAPI server that exposes REST endpoints under `/api/*`.
+- The frontend calls those endpoints using `fetch`, with a JWT token for auth.
+
+### How It Works (Step by Step)
+- Sign up creates a user and stores a hashed password in the database.
+- Log in verifies the credentials and returns a JWT token to the browser.
+- Chat uses that token (`Authorization: Bearer <token>`) to send prompts.
+- The server generates an AI response and saves both prompt + reply in history.
+- History endpoint returns recent conversation entries for the sidebar.
+- Newsletter subscription collects emails for updates.
+
+### Key User Flows
+- Sign Up → Log In → Land on Chat → Send Message → See Response → View History.
+- On mobile, the chat UI is responsive: minimal header, dropdown for user actions, input stays visible above the keyboard.
+
+## ✨ Features
+- Clean landing page with a hero section and feature cards.
+- Secure authentication with JWT.
+- Chat interface with message streaming and typing effect.
+- Persistent chat history per user.
+- Mobile‑friendly layout with dropdown user menu and no sideways scroll.
+- Newsletter subscription module.
+- Dark mode support.
+
+## ⚙️ Setup & Local Development
 
 ### Prerequisites
 
@@ -153,14 +186,9 @@ CREATE TABLE chat_history (
 cd frontend
 ```
 
-2. **Update API URL in `app.js`:**
-```javascript
-// Change this line:
-const API_BASE_URL = 'http://localhost:8000/api';
-
-// To your production backend URL when deploying:
-const API_BASE_URL = 'https://your-backend-url.com/api';
-```
+2. **API URL selection is automatic:**
+The app detects Vercel hosting and uses a relative base: `API_BASE_URL = '/api'`.
+Locally it falls back to `http://localhost:8000/api`.
 
 3. **For local development:**
    - Open `index.html` in a web browser, or
@@ -246,7 +274,57 @@ lsof -i :3000
 kill -9 <PID>
 ```
 
-**CORS Errors in Browser Console**
+**CORS Errors or 404 HTML Responses on Vercel**
+
+- Ensure `vercel.json` routes `/api/(.*)` to `api/index.py` and static files to `frontend/`.
+- Remove any `frontend/api/` folder — it can cause static 404 pages for `/api/*`.
+- Confirm `API_BASE_URL` resolves to `'/api'` on Vercel and `http://localhost:8000/api` locally.
+- Check `/api/health` on your Vercel domain returns JSON `{ status: 'ok' }`.
+
+**Auth Issues (Invalid Token / Unauthorized)**
+- Verify your JWT secret in `.env`.
+- Make sure frontend sends `Authorization: Bearer <token>` for protected routes.
+
+**Database Connectivity**
+- Use `/test-db` to verify Supabase connection.
+- Check your `SUPABASE_URL` and `SUPABASE_KEY` are correct.
+
+## 🔌 API Endpoints (Summary)
+- `GET /` → Root info
+- `GET /health` → Health check
+- `POST /api/signup` → Create account
+- `POST /api/login` → Authenticate and get JWT
+- `POST /api/send-message` (auth) → Send user prompt, get AI response
+- `GET /api/history` (auth) → Get chat entries
+- `POST /api/logout` (auth) → Invalidate session client‑side
+- `POST /api/newsletter` → Subscribe to newsletter
+
+## 🧩 Frontend Notes
+- Base URL selection in `app.js`:
+  - On Vercel: `'/api'`
+  - Local dev: ``http://${window.location.hostname}:8000/api``
+- Responsive chat tweaks avoid double scrollbars and keep the input visible.
+- Titles and hero text are adjusted for readability on mobile.
+
+## 📦 Deployment (Monorepo on Vercel)
+- `api/index.py` re‑exports the FastAPI `app` from `backend/main.py`.
+- `api/requirements.txt` pulls `backend/requirements.txt`.
+- `vercel.json`:
+  - Builds Python function from `api/index.py`.
+  - Routes `/api/*` to the function and serves `frontend/*` statically.
+
+## 🗺️ Roadmap Ideas
+- Richer chat formatting (code blocks, citations).
+- Conversation folders and tags.
+- Multi‑turn prompt controls (temperature, system prompts).
+- Export chats to Markdown.
+- Basic usage analytics and opt‑in telemetry.
+
+## 💬 FAQ (For Slides)
+- “Is this production‑ready?” — It’s a solid starter with clear auth and data paths; harden inputs, add rate limiting, and refine infra for production.
+- “Does it work on phones?” — Yes, the landing and chat pages are responsive with mobile‑specific fixes.
+- “Do I need to configure CORS?” — On Vercel monorepo you use same‑origin (`/api`), so CORS is minimized.
+
 
 - Hard refresh the page: `Ctrl+Shift+R` (Windows/Linux) or `Cmd+Shift+R` (macOS)
 - Clear browser cache and cookies
