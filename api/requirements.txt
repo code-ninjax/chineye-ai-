@@ -1,0 +1,2 @@
+--no-cache-dir
+-r ../backend/requirements.txt

@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat - Chineye AI</title>
+    <title>Chat · Chineye AI</title>
     <link rel="stylesheet" href="theme.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
 </head>
-<body>
+<body class="chat-page">
     <div class="chat-app">
         <aside class="sidebar" id="sidebar">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -26,17 +26,27 @@
         </aside>
 
         <main class="main">
-            <header class="chat-header">
+            <header class="chat-header" style="position:relative;">
                 <div style="display:flex;align-items:center;gap:12px;">
                     <button id="sidebarToggle" class="btn btn-secondary sidebar-toggle" style="display:none;"><i class="fa-solid fa-bars"></i></button>
                     <h1>Chineye AI</h1>
                 </div>
 
-                <div style="display:flex;align-items:center;gap:12px;">
+                <div class="user-controls" style="display:flex;align-items:center;gap:12px;">
                     <div id="userGreeting" class="user-badge">
                         <!-- Hello, username -->
                     </div>
                     <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+                    <button id="userMenuToggle" class="btn btn-secondary user-menu-toggle" style="display:none; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-user"></i>
+                        <span>Menu</span>
+                    </button>
+                </div>
+                <div id="userMenu" class="user-menu">
+                    <div id="menuGreeting" class="menu-item"></div>
+                    <div class="menu-actions">
+                        <button id="menuLogout" class="btn btn-secondary btn-full">Logout</button>
+                    </div>
                 </div>
             </header>
 
@@ -59,20 +69,26 @@
     </div>
 
     <script src="app.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (!getToken()) {
-                window.location.href = 'login.html';
-                return;
-            }
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                if (!getToken()) {
+                    window.location.href = 'login.html';
+                    return;
+                }
 
-            // show username (fixed greeting display)
+            // show username (fixed greeting display + mobile menu)
             const username = window.localStorage.getItem('username');
             const userGreeting = document.getElementById('userGreeting');
+            const userMenuToggle = document.getElementById('userMenuToggle');
+            const userMenu = document.getElementById('userMenu');
+            const menuGreeting = document.getElementById('menuGreeting');
+            const menuLogout = document.getElementById('menuLogout');
             if (username) {
                 userGreeting.innerHTML = `<span class="user-avatar">${username.charAt(0).toUpperCase()}</span><span style="white-space:nowrap;">Hello, ${username}</span>`;
+                menuGreeting.innerHTML = `<span class="muted">Hello, ${username}</span>`;
             } else {
                 userGreeting.innerHTML = `<a href="login.html" class="muted">Sign in</a>`;
+                menuGreeting.innerHTML = `<a href="login.html" class="muted">Sign in</a>`;
             }
 
             // Load chat history and sidebar
@@ -113,11 +129,14 @@
                 sidebar.classList.remove('open');
             });
 
-            // Close sidebar when clicking outside on mobile
+            // Close sidebar when clicking outside on mobile + close user menu
             document.addEventListener('click', (e) => {
                 if (window.innerWidth <= 768) {
                     if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
                         sidebar.classList.remove('open');
+                    }
+                    if (!userMenu.contains(e.target) && !userMenuToggle.contains(e.target)) {
+                        userMenu.style.display = 'none';
                     }
                 }
             });
@@ -129,17 +148,39 @@
                 }
             }
 
-            // show toggle on small screens
+            // show toggle on small screens + control user menu visibility
             function updateSidebarToggle() {
                 if (window.innerWidth <= 768) {
                     sidebarToggle.style.display = 'inline-flex';
                     sidebarCloseBtn.style.display = 'inline-flex';
+                    userMenuToggle.style.display = 'inline-flex';
+                    document.getElementById('logoutBtn').style.display = 'none';
+                    userGreeting.style.display = 'none';
                 } else {
                     sidebarToggle.style.display = 'none';
                     sidebarCloseBtn.style.display = 'none';
                     sidebar.classList.remove('open');
+                    userMenuToggle.style.display = 'none';
+                    userMenu.style.display = 'none';
+                    document.getElementById('logoutBtn').style.display = 'inline-flex';
+                    userGreeting.style.display = 'inline-flex';
                 }
             }
+
+            // user menu toggle
+            userMenuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const visible = userMenu.style.display === 'block';
+                userMenu.style.display = visible ? 'none' : 'block';
+            });
+
+            // ensure input stays visible above keyboard on mobile
+            const messageInput = document.getElementById('messageInput');
+            messageInput.addEventListener('focus', () => {
+                setTimeout(() => {
+                    messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 50);
+            });
 
             window.addEventListener('resize', updateSidebarToggle);
             updateSidebarToggle();
