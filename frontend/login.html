@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Chineye AI</title>
+    <link rel="stylesheet" href="theme.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+</head>
+<body class="site-bg">
+    <header class="navbar">
+        <div class="nav-left">
+            <a href="index.html" class="logo" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-robot" style="color:var(--accent-blue);"></i>Chineye AI</a>
+        </div>
+        <div class="nav-right">
+            <button class="theme-toggle" title="Toggle theme" aria-label="Toggle theme"><i class="fa-solid fa-moon"></i></button>
+        </div>
+    </header>
+
+    <div class="auth-page">
+        <div class="auth-card">
+            <h1><i class="fa-solid fa-right-to-bracket" style="margin-right:12px; color:var(--accent-blue)"></i>Login</h1>
+            <p class="auth-subtitle">Welcome back to Chineye AI</p>
+            
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginEmail"><i class="fa-solid fa-envelope" style="margin-right:6px;"></i>Email</label>
+                    <input 
+                        type="email" 
+                        id="loginEmail" 
+                        name="email" 
+                        required 
+                        placeholder="your@email.com"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword"><i class="fa-solid fa-lock" style="margin-right:6px;"></i>Password</label>
+                    <input 
+                        type="password" 
+                        id="loginPassword" 
+                        name="password" 
+                        required 
+                        placeholder="Your password"
+                    >
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full"><i class="fa-solid fa-arrow-right-to-bracket" style="margin-right:8px"></i>Sign In</button>
+            </form>
+            
+            <div class="auth-message" id="loginMessage"></div>
+            
+            <p class="auth-link">
+                Don't have an account? <a href="signup.html">Create one</a>
+            </p>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('loginForm');
+            if (form) {
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    if (typeof loginUser === 'function') {
+                        loginUser();
+                    } else {
+                        console.error('loginUser function not loaded yet');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Chineye AI</title>
+    <link rel="stylesheet" href="theme.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+</head>
+<body class="site-bg">
+    <header class="navbar">
+        <div class="nav-left">
+            <a href="index.html" class="logo" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-robot" style="color:var(--accent-blue);"></i>Chineye AI</a>
+        </div>
+        <div class="nav-right">
+            <button class="theme-toggle" title="Toggle theme" aria-label="Toggle theme"><i class="fa-solid fa-moon"></i></button>
+        </div>
+    </header>
+
+    <div class="auth-page">
+        <div class="auth-card">
+            <h1><i class="fa-solid fa-user-plus" style="margin-right:12px; color:var(--accent-blue)"></i>Create Account</h1>
+            <p class="auth-subtitle">Join Chineye AI and start chatting today</p>
+            
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label for="username"><i class="fa-solid fa-user" style="margin-right:6px;"></i>Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        required 
+                        placeholder="Choose a username"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="email"><i class="fa-solid fa-envelope" style="margin-right:6px;"></i>Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        required 
+                        placeholder="your@email.com"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="password"><i class="fa-solid fa-lock" style="margin-right:6px;"></i>Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        required 
+                        placeholder="At least 6 characters"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword"><i class="fa-solid fa-check-double" style="margin-right:6px;"></i>Confirm Password</label>
+                    <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        name="confirmPassword" 
+                        required 
+                        placeholder="Confirm your password"
+                    >
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full"><i class="fa-solid fa-arrow-right" style="margin-right:8px"></i>Sign Up</button>
+            </form>
+            
+            <div class="auth-message" id="signupMessage"></div>
+            
+            <p class="auth-link">
+                Already have an account? <a href="login.html">Sign in</a>
+            </p>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('signupForm');
+            if (form) {
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    if (typeof signupUser === 'function') {
+                        signupUser();
+                    } else {
+                        console.error('signupUser function not loaded yet');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

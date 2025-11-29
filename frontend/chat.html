@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Chineye AI</title>
+    <link rel="stylesheet" href="theme.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+</head>
+<body>
+    <div class="chat-app">
+        <aside class="sidebar" id="sidebar">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <button id="newChatBtn" class="btn btn-secondary new-chat">+ New Chat</button>
+                    <button class="theme-toggle" title="Toggle theme" aria-label="Toggle theme"><i class="fa-solid fa-moon"></i></button>
+                </div>
+                <button id="sidebarCloseBtn" class="btn btn-secondary sidebar-close" style="display:none; width:36px; height:36px; padding:0; align-items:center; justify-content:center;"><i class="fa-solid fa-x"></i></button>
+            </div>
+            <div>
+                <h4 class="muted">Your Chats</h4>
+                <ul id="chatList" class="chat-list">
+                    <!-- populated by JS -->
+                </ul>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="chat-header">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <button id="sidebarToggle" class="btn btn-secondary sidebar-toggle" style="display:none;"><i class="fa-solid fa-bars"></i></button>
+                    <h1>Chineye AI</h1>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div id="userGreeting" class="user-badge">
+                        <!-- Hello, username -->
+                    </div>
+                    <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+                </div>
+            </header>
+
+            <section id="chatMessages" class="chat-messages">
+                <div class="message bot-message">
+                    <p>Hello! I'm Chineye AI. How can I help you today?</p>
+                </div>
+            </section>
+
+            <footer class="chat-footer">
+                <form id="messageForm" class="message-form">
+                    <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off" required>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button type="submit" class="btn btn-primary">Send</button>
+                        <button id="stopBtn" type="button" class="btn btn-secondary" style="display:none;">Stop</button>
+                    </div>
+                </form>
+            </footer>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!getToken()) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // show username (fixed greeting display)
+            const username = window.localStorage.getItem('username');
+            const userGreeting = document.getElementById('userGreeting');
+            if (username) {
+                userGreeting.innerHTML = `<span class="user-avatar">${username.charAt(0).toUpperCase()}</span><span style="white-space:nowrap;">Hello, ${username}</span>`;
+            } else {
+                userGreeting.innerHTML = `<a href="login.html" class="muted">Sign in</a>`;
+            }
+
+            // Load chat history and sidebar
+            loadChatHistory().then((history) => {
+                populateSidebar(history || []);
+            });
+
+            // New chat button
+            document.getElementById('newChatBtn').addEventListener('click', () => {
+                // clear messages and show starter prompt
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = `<div class="message bot-message"><p>New chat started. How can I help?</p></div>`;
+                closeSidebarOnMobile();
+            });
+
+            // handle message submit
+            const form = document.getElementById('messageForm');
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                sendMessage();
+            });
+
+            // logout
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                logoutUser();
+            });
+
+            // sidebar toggle for mobile
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+            const sidebar = document.getElementById('sidebar');
+            
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.add('open');
+            });
+
+            sidebarCloseBtn.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768) {
+                    if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                        sidebar.classList.remove('open');
+                    }
+                }
+            });
+
+            // Helper function to close sidebar on mobile
+            function closeSidebarOnMobile() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('open');
+                }
+            }
+
+            // show toggle on small screens
+            function updateSidebarToggle() {
+                if (window.innerWidth <= 768) {
+                    sidebarToggle.style.display = 'inline-flex';
+                    sidebarCloseBtn.style.display = 'inline-flex';
+                } else {
+                    sidebarToggle.style.display = 'none';
+                    sidebarCloseBtn.style.display = 'none';
+                    sidebar.classList.remove('open');
+                }
+            }
+
+            window.addEventListener('resize', updateSidebarToggle);
+            updateSidebarToggle();
+        });
+
+        // populateSidebar is defined in app.js (if not, provide a fallback)
+        if (typeof populateSidebar === 'undefined') {
+            function populateSidebar(history) {
+                const list = document.getElementById('chatList');
+                list.innerHTML = '';
+                history.forEach((entry, idx) => {
+                    const li = document.createElement('li');
+                    li.className = 'chat-item';
+                    li.textContent = `${new Date(entry.timestamp).toLocaleString()}: ${entry.message.slice(0, 40)}...`;
+                    li.addEventListener('click', () => {
+                        // load that single entry
+                        const chatMessages = document.getElementById('chatMessages');
+                        chatMessages.innerHTML = '';
+                        addMessageToChat(entry.message, 'user');
+                        addMessageToChat(entry.response, 'bot');
+                    });
+                    list.appendChild(li);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

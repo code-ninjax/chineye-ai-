@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chineye AI - Chatbot</title>
+    <link rel="stylesheet" href="theme.css">
+    <!-- Font Awesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="nav-left">
+            <a href="index.html" class="logo" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-robot" style="color:var(--accent-blue);"></i>Chineye AI</a>
+            <nav class="muted" aria-label="main navigation">
+                <!-- small tagline optional -->
+            </nav>
+        </div>
+        <div class="nav-right">
+            <button class="theme-toggle" title="Toggle theme" aria-label="Toggle theme"><i class="fa-solid fa-moon"></i></button>
+            <a class="nav-link" href="login.html">Log in</a>
+            <a class="nav-link" href="signup.html">Sign up</a>
+        </div>
+    </header>
+    <div class="container">
+        <div class="landing-page">
+            <!-- Two-column hero: text + illustration -->
+            <section class="landing-hero two-column">
+                <div class="hero-left">
+                    <h1>Chineye AI — Your intelligent chat companion</h1>
+                    <p class="subtitle">Ask questions, brainstorm ideas, get instant help — all in a clean, private chat interface.</p>
+
+                    <div class="cta-buttons">
+                        <a href="chat.html" class="btn btn-primary"><i class="fa-solid fa-rocket" style="margin-right:8px"></i>Start Chatting</a>
+                        <a href="signup.html" class="btn btn-secondary"><i class="fa-solid fa-user-plus" style="margin-right:8px"></i>Create an Account</a>
+                    </div>
+
+                    <div class="trust-row muted" style="margin-top:20px; display:flex; gap:18px; align-items:center;">
+                        <small>Trusted by developers & teams • Secure • Fast</small>
+                    </div>
+                </div>
+
+                <div class="hero-right">
+                    <!-- Hero image -->
+                    <div class="hero-art">
+                        <img src="image/hero.png" alt="AI chatbot interface" style="width:100%; height:auto; border-radius:12px;">
+                    </div>
+                </div>
+            </section>
+
+            <section class="features horizontal" style="margin-top:36px;">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-comments"></i></div>
+                    <h3>Helpful Conversations</h3>
+                    <p class="muted">Get clear, contextual answers that adapt to the flow of your chat.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-lock"></i></div>
+                    <h3>Private & Secure</h3>
+                    <p class="muted">We keep your data private — designed for personal and team use.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <h3>Fast Responses</h3>
+                    <p class="muted">Optimized to be responsive so conversations feel instant.</p>
+                </div>
+            </section>
+
+            <!-- Newsletter -->
+            <section class="newsletter" style="margin-top:28px; display:flex; justify-content:center;">
+                <div class="newsletter-card" style="max-width:820px; width:100%;">
+                    <div style="flex:1">
+                        <h4 style="margin:0 0 6px 0">Stay updated</h4>
+                        <p class="muted" style="margin:0; font-size:0.95rem">Subscribe to our newsletter for product updates and tips.</p>
+                    </div>
+
+                    <form id="newsletterForm" style="display:flex; gap:10px;">
+                        <input id="newsletterEmail" type="email" placeholder="Your email" required style="padding:10px 12px; border:1px solid var(--border); border-radius:8px; min-width:220px;">
+                        <button type="submit" class="btn btn-primary">Subscribe</button>
+                    </form>
+                    <div id="newsletterMessage" style="margin-left:auto; padding:8px 12px; border-radius:8px; font-size:13px; min-width:200px; text-align:center; display:none;"></div>
+                </div>
+            </section>
+
+            <footer style="margin-top:28px; padding:18px 0; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+                <div class="muted">© Chineye AI</div>
+                <div class="muted">Built with care • Privacy-minded</div>
+            </footer>
+        </div>
+    </div>
+    <script src="app.js"></script>
+    <script>
+        // Handle newsletter subscription
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('newsletterForm');
+            const emailInput = document.getElementById('newsletterEmail');
+            const messageDiv = document.getElementById('newsletterMessage');
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const email = emailInput.value.trim();
+                if (!email) return;
+
+                // Show loading state
+                const submitBtn = form.querySelector('button');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner" style="animation: spin 1s linear infinite;"></i>';
+                submitBtn.disabled = true;
+
+                // Subscribe
+                const result = await subscribeToNewsletter(email);
+
+                // Show message
+                messageDiv.style.display = 'block';
+                messageDiv.textContent = result.message;
+                
+                if (result.success) {
+                    messageDiv.style.background = 'rgba(34, 197, 94, 0.1)';
+                    messageDiv.style.color = '#16a34a';
+                    messageDiv.style.border = '1px solid rgba(34, 197, 94, 0.2)';
+                    emailInput.value = '';
+                    
+                    // Hide message after 5 seconds
+                    setTimeout(() => {
+                        messageDiv.style.display = 'none';
+                    }, 5000);
+                } else {
+                    messageDiv.style.background = 'rgba(239, 68, 68, 0.1)';
+                    messageDiv.style.color = '#dc2626';
+                    messageDiv.style.border = '1px solid rgba(239, 68, 68, 0.2)';
+                }
+
+                // Restore button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>

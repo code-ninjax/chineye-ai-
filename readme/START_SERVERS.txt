@@ -1,0 +1,5 @@
+BACKEND: cd backend && python -m uvicorn main:app --reload
+FRONTEND: cd frontend && python -m http.server 3000
+
+cd backend
+python run_dev.py
