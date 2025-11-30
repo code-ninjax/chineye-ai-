@@ -106,6 +106,12 @@ async def health_check():
     return {"status": "ok", "service": "Chineye AI API"}
 
 
+@app.get("/api/health")
+async def api_health_check():
+    """Health check endpoint under /api for hosted verification"""
+    return {"status": "ok", "service": "Chineye AI API"}
+
+
 @app.get("/test-db")
 async def test_db():
     """Test database connection"""
