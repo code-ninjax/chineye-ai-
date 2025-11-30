@@ -1,9 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "api/index.py", "use": "@vercel/python" },
-    { "src": "api/hello.py", "use": "@vercel/python" }
-  ],
   "functions": {
     "api/index.py": {
       "runtime": "python3.11",
@@ -13,10 +9,10 @@
       "runtime": "python3.11"
     }
   },
-  "routes": [
-    { "src": "/api/hello", "dest": "api/hello.py" },
-    { "src": "/api/(.*)", "dest": "api/index.py" },
-    { "src": "/", "dest": "frontend/index.html" },
-    { "src": "/(.*)", "dest": "frontend/$1" }
+  "rewrites": [
+    { "source": "/api/hello", "destination": "/api/hello" },
+    { "source": "/api/(.*)", "destination": "/api/index" },
+    { "source": "/", "destination": "/frontend/index.html" },
+    { "source": "/(.*)", "destination": "/frontend/$1" }
   ]
 }
