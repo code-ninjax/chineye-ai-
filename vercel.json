@@ -2,11 +2,7 @@
   "version": 2,
   "functions": {
     "api/index.py": {
-      "runtime": "python3.11",
       "includeFiles": "backend/**"
-    },
-    "api/hello.py": {
-      "runtime": "python3.11"
     }
   },
   "rewrites": [
