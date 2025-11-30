@@ -1,10 +1,13 @@
 {
-  "builds": [
-    { "src": "api/index.py", "use": "@vercel/python" }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "api/index.py" },
-    { "src": "/", "dest": "frontend/index.html" },
-    { "src": "/(.*)", "dest": "frontend/$1" }
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.11",
+      "includeFiles": ["backend/**"]
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.py" },
+    { "source": "/", "destination": "/frontend/index.html" },
+    { "source": "/(.*)", "destination": "/frontend/$1" }
   ]
 }

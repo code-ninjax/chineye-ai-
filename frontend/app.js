@@ -5,8 +5,13 @@
 // Change this to your backend URL when deployed
 // Use window.location.hostname to handle different environments
 // Use relative /api on Vercel (behind serverless proxy), fallback to local backend in dev
-const IS_VERCEL = typeof window !== 'undefined' && window.location.hostname.endsWith('vercel.app');
-const API_BASE_URL = IS_VERCEL ? '/api' : `http://${window.location.hostname}:8000/api`;
+// Robust environment detection: use same-origin /api for any hosted domain
+const IS_LOCAL = typeof window !== 'undefined' && (
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1' ||
+  window.location.hostname === '0.0.0.0'
+);
+const API_BASE_URL = IS_LOCAL ? `http://${window.location.hostname}:8000/api` : '/api';
 
 // Typing animation speed configuration (lower = faster)
 const TYPING_BASE_DELAY_MS = 6; // previously ~18
