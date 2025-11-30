@@ -3,7 +3,7 @@
   "functions": {
     "api/index.py": {
       "runtime": "python3.11",
-      "includeFiles": ["backend/**"]
+      "includeFiles": "backend/**"
     },
     "api/hello.py": {
       "runtime": "python3.11"
