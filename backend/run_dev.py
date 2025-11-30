@@ -6,7 +6,7 @@ def main() -> None:
     port = int(os.getenv("PORT", 8000))
     # Start Uvicorn with explicit protocol/loop to avoid environment-specific hangs
     uvicorn.run(
-        "main:app",
+        "backend.main:app",
         host="127.0.0.1",
         port=port,
         reload=False,

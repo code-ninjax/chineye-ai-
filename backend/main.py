@@ -11,19 +11,19 @@ from fastapi import FastAPI, Depends, HTTPException, status, Header
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from models import (
+from backend.models import (
     SignupRequest, LoginRequest, LoginResponse, SendMessageRequest,
     MessageResponse, ChatHistoryResponse, ChatHistoryEntry
 )
-from auth import (
+from backend.auth import (
     hash_password, verify_password, create_access_token,
     verify_token, extract_user_id_from_token, ACCESS_TOKEN_EXPIRE_MINUTES
 )
-from database import (
+from backend.database import (
     create_user, get_user_by_email, get_user_by_id, save_chat_message,
     get_chat_history, user_exists, subscribe_to_newsletter
 )
-from chatbot import chatbot_response
+from backend.chatbot import chatbot_response
 
 # Load environment variables
 load_dotenv()
@@ -366,7 +366,7 @@ if __name__ == "__main__":
     
     port = int(os.getenv("PORT", 8000))
     uvicorn.run(
-        "main:app",
+        "backend.main:app",
         host="0.0.0.0",
         port=port,
         reload=True,
