@@ -10,23 +10,25 @@ from typing import Optional
 from fastapi import FastAPI, Depends, HTTPException, status, Header
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+from pathlib import Path
 
-from backend.models import (
+from api.models import (
     SignupRequest, LoginRequest, LoginResponse, SendMessageRequest,
     MessageResponse, ChatHistoryResponse, ChatHistoryEntry
 )
-from backend.auth import (
+from api.auth import (
     hash_password, verify_password, create_access_token,
     verify_token, extract_user_id_from_token, ACCESS_TOKEN_EXPIRE_MINUTES
 )
-from backend.database import (
+from api.database import (
     create_user, get_user_by_email, get_user_by_id, save_chat_message,
     get_chat_history, user_exists, subscribe_to_newsletter
 )
-from backend.chatbot import chatbot_response
+from api.chatbot import chatbot_response
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from project root for local development
+ROOT_ENV = Path(__file__).resolve().parents[1] / ".env"
+load_dotenv(dotenv_path=ROOT_ENV)
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -116,7 +118,7 @@ async def api_health_check():
 async def test_db():
     """Test database connection"""
     try:
-        from database import get_supabase_client
+        from api.database import get_supabase_client
         client = get_supabase_client()
         response = client.table("users").select("*").limit(1).execute()
         return {
