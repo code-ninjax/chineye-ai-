@@ -8,14 +8,23 @@ repo_root_str = str(REPO_ROOT)
 if repo_root_str not in sys.path:
     sys.path.insert(0, repo_root_str)
 
+# Also ensure the api directory itself is importable (sibling imports fallback)
+API_DIR = Path(__file__).resolve().parent
+api_dir_str = str(API_DIR)
+if api_dir_str not in sys.path:
+    sys.path.insert(0, api_dir_str)
+
 try:
-    # Import FastAPI app from api package
+    # Prefer package import
     from api.main import app as fastapi_app
-    # Vercel Python runtime looks for a module-level `app` (ASGI)
     app = fastapi_app
-    # Basic startup log (visible in Vercel logs)
-    print("[serverless] api.index loaded app successfully.")
-except Exception as e:
-    # Emit a clear message for startup failures (imports, missing deps)
-    print(f"[serverless] Failed to load FastAPI app: {e}")
-    raise
+    print("[serverless] api.index loaded app via 'api.main'.")
+except Exception as e1:
+    try:
+        # Fallback to local module import when package import fails
+        from main import app as fastapi_app
+        app = fastapi_app
+        print("[serverless] api.index loaded app via fallback 'main'.")
+    except Exception as e2:
+        print(f"[serverless] Failed to load FastAPI app. api.main error: {e1}; fallback error: {e2}")
+        raise
