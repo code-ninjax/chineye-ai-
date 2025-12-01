@@ -7,7 +7,19 @@ import hashlib
 import secrets
 from datetime import datetime, timedelta
 from typing import Optional
-from jose import JWTError, jwt
+# Lazy import for JWT to avoid startup crashes if dependency missing
+JWTError = None
+jwt = None
+
+def _ensure_jose():
+    global JWTError, jwt
+    if jwt is None or JWTError is None:
+        try:
+            from jose import JWTError as _JWTError, jwt as _jwt
+            JWTError = _JWTError
+            jwt = _jwt
+        except Exception as e:
+            raise ImportError("JWT library not available. Ensure 'python-jose[cryptography]' is installed.")
 
 # Configuration
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this-in-production")
@@ -90,6 +102,8 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     # Use numeric timestamp for maximum compatibility in serverless runtimes
     exp_ts = int(expire_dt.timestamp())
     to_encode.update({"exp": exp_ts})
+    # Import jose lazily to prevent import-time crashes in serverless runtimes
+    _ensure_jose()
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
@@ -105,9 +119,11 @@ def verify_token(token: str) -> Optional[dict]:
         Decoded token data if valid, None otherwise
     """
     try:
+        _ensure_jose()
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
-    except JWTError:
+    except Exception:
+        # Includes missing library or invalid token
         return None
 
 
