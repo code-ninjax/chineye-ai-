@@ -3,13 +3,12 @@ database.py - Supabase database connection and helper functions
 """
 
 import os
-from typing import Optional, List
+from typing import Optional, List, Any
 from datetime import datetime
-from supabase import create_client, Client
 
 
-# Supabase configuration - will be initialized on first use
-supabase: Optional[Client] = None
+# Supabase client - lazy import to avoid import-time crashes in serverless
+supabase: Optional[Any] = None
 
 
 def get_supabase_client() -> Client:
@@ -19,6 +18,11 @@ def get_supabase_client() -> Client:
     global supabase
     
     if supabase is None:
+        # Lazy import to ensure missing dependencies don't crash at module import
+        try:
+            from supabase import create_client
+        except Exception as e:
+            raise Exception("Supabase client not installed. Ensure 'supabase' is in requirements.")
         SUPABASE_URL = os.getenv("SUPABASE_URL")
         SUPABASE_KEY = os.getenv("SUPABASE_KEY")
         
